@@ -4,7 +4,22 @@
   <div class="jumbotron centered">
     <i class="fas fa-key fa-6x"></i>
     <h1 class="display-3">Secrets</h1>
+  
+  <%user.secrets.forEach( function(secret){%>
+<p class="secret-text"><%=secret.secret%></p>
+    <form action="/delete" method="POST">
+
+  <input type="text" name="hisId" value="<%=user._id%>">
+        <input type="text" name="del" value="<%=secret._id%>">
+    
+      <button type="submit">Delete</button>
+      </form>
+      <% })%>
+      
+    
+
     <p class="secret-text">Don't keep your secrets, share them anonymously!</p>
+
 
     <form action="/submit" method="POST">
 
@@ -13,7 +28,7 @@
       </div>
       <button type="submit" class="btn btn-dark">Submit</button>
     </form>
-
+    
 
   </div>
 </div>
