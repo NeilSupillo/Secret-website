@@ -3,33 +3,51 @@
 <div class="container">
   <div class="jumbotron centered">
     <i class="fas fa-key fa-6x"></i>
-    <h1 class="display-3">Secrets</h1>
+    
+    <%if(!user.secrets.length){%>
+    <p class="user-secret">Don't keep your secrets, share them anonymously!</p>
+       <% }else{%>
+    <p class="user-secret">Secrets You Haved Shared</p>
   
   <%user.secrets.forEach( function(secret){%>
-<p class="secret-text"><%=secret.secret%></p>
-    <form action="/delete" method="POST">
-
-  <input type="text" name="hisId" value="<%=user._id%>">
-        <input type="text" name="del" value="<%=secret._id%>">
+ <p class="secret-text"><%=secret.secret%></p>
+ 
+ <form action="/edit" method="POST">
+<button type="submit">Edit</button>
+    <input type="hidden" name="passedVal" value="<%=secret.secret%>">
+  <input type="hidden" name="hisId" value="<%=user._id%>">
+        <input type="hidden" name="del" value="<%=secret._id%>">
     
-      <button type="submit">Delete</button>
+      
+      </form>
+ 
+      <form action="/delete" method="POST">
+<button type="submit">Delete</button>
+    
+  <input type="hidden" name="hisId" value="<%=user._id%>">
+        <input type="hidden" name="del" value="<%=secret._id%>">
+ 
       </form>
       <% })%>
-      
+  <% }%>
     
 
-    <p class="secret-text">Don't keep your secrets, share them anonymously!</p>
+    <p class="submit-title">Submit A Secret!</p>
 
 
     <form action="/submit" method="POST">
 
       <div class="form-group">
-        <input type="text" class="form-control text-center" name="secret" placeholder="What's your secret?">
+        <input type="text" class="form-control text-center" name="secret" placeholder="What's your secret?" value=<%=toEdit%>>
+        
       </div>
       <button type="submit" class="btn btn-dark">Submit</button>
     </form>
     
-
+     <div class="logout-back">
+   <a class="btn btn-light btn-lg logout" href="/logout" role="button">Log Out</a>
+   <a class="btn btn-light btn-lg back" href="/secrets" role="button">Back</a>
+    </div>
   </div>
 </div>
 <%- include('partials/footer') %>

@@ -134,6 +134,8 @@ app.get("/register", function(req, res){
 });
 
  app.get("/secrets", async function(req, res){
+ if (req.isAuthenticated()){
+ 
   const foundUsers = await User.find({"secrets": {$exists: true, $not: {$size: 0}}})
   //console.log(foundUsers)
   //.then( ()=>{
@@ -144,6 +146,9 @@ app.get("/register", function(req, res){
    .catch( (err)=>{
        console.log(err) 
    })  */
+    } else {
+    res.redirect("/login");
+  }
 });
 
 /* app.get("/secrets", function(req, res){
@@ -158,7 +163,7 @@ app.get("/submit", async function(req, res){
   if (req.isAuthenticated()){
  const userId = await User.findById(req.user.id)
  console.log(userId)
-    res.render("submit", {user: userId});
+    res.render("submit", {user: userId, toEdit: ""});
   } else {
     res.redirect("/login");
   }
@@ -169,7 +174,6 @@ app.post("/submit", async function(req, res){
 const cus = {
     secret: submittedSecret
 }
-console.log("submit")
 //Once the user is authenticated and their session gets saved, their user details are saved to req.user.
   // console.log(req.user.id);
 
@@ -228,7 +232,21 @@ app.post("/login", function(req, res){
 });
 
 
-
+app.post("/edit", function (req, res) {
+   const editVal = req.body.passedVal;
+   const delId = (req.body.hisId)
+   const secretId = (req.body.del)
+   console.log(delId, secretId)
+   User.updateOne({_id: delId}, {$pull: {secrets: {_id: secretId}}})
+   .then( async ()=>{
+       const userId = await User.findById(req.user.id)
+ console.log(userId)
+    res.render("submit", {user: userId, toEdit: editVal});
+   })
+   .catch( (err)=> {
+    console.log(`error connected to db ${err}`)
+});
+})
 app.post("/delete", function (req, res) {
    const delId = (req.body.hisId)
    const secretId = (req.body.del)

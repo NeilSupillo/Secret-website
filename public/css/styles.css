@@ -14,4 +14,26 @@ body {
   color: #fff;
   background-color: #000;
 }
-
+.user-secret,
+.submit-title{
+   text-align: center;
+  font-size: 2rem;
+  color: black;
+  background-color: white;
+}
+.submit-title{
+    margin-top: 4rem;
+}
+.user-secret{
+    margin-top: 2rem;
+}
+.logout-back{
+width: 200px;
+     display:flex;
+    margin-top: 3rem;
+    justify-content: space-between;
+}
+.logout{
+    background-color: black;
+    color: white;
+}
