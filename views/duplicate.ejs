@@ -1,7 +1,7 @@
 <%- include('partials/header') %>
 
 <div class="container mt-5">
-  <h1>Login</h1>
+  <h1>Log in</h1>
   <div class="row">
     <div class="col-sm-8">
       <div class="card">
@@ -12,12 +12,7 @@
               <label for="email">Email</label>
               <input type="email" class="form-control" name="username" />
             </div>
-            <%if(user === "wrong"){%>
-            <p class="wrong">The password or email is incorrect.</p>
-            <% }%> <%if(user === "email"){%>
-            <p class="wrong">No user found with matching email</p>
-            <% }%>
-
+            <p class="wrong">The email is already registered.</p>
             <div class="form-group">
               <label for="password">Password</label>
               <input type="password" class="form-control" name="password" />
@@ -25,7 +20,7 @@
             <button type="submit" class="btn btn-dark">Login</button>
           </form>
           <p class="dont-have sign-up">
-            <a href="/forget">Forger your password?</a>
+            <a href="/register">Forger your password?</a>
           </p>
           <p class="dont-have sign-up">
             Don't have an account? <a href="/register">Sign up</a>
