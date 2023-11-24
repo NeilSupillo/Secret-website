@@ -21,7 +21,6 @@ app.use(
     extended: true,
   })
 );
-
 app.use(
   session({
     secret: "Our little secret.",
@@ -29,7 +28,6 @@ app.use(
     saveUninitialized: false,
   })
 );
-
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -170,6 +168,7 @@ app.get("/forget", function (req, res) {
 });
 // get and see user secrets
 app.get("/secrets", async function (req, res) {
+  console.log(req.isAuthenticated());
   if (req.isAuthenticated()) {
     const foundUsers = await User.find({
       secrets: { $exists: true, $not: { $size: 0 } },
@@ -197,9 +196,10 @@ app.get("/secrets", async function (req, res) {
 
 //see account
 app.get("/submit", async function (req, res) {
+  console.log(req.isAuthenticated());
   if (req.isAuthenticated()) {
     const userId = await User.findById(req.user.id);
-    console.log("/submit " + userId);
+    // console.log("/submit " + userId);
     res.render("submit", { user: userId });
   } else {
     res.redirect("/login");
@@ -298,7 +298,7 @@ app.post("/login", function (req, res, next) {
       if (err) {
         return next(err);
       }
-      console.log(user);
+      //console.log(user);
       return res.redirect("/secrets");
     });
   })(req, res, next);
@@ -308,14 +308,14 @@ app.post("/edit", async function (req, res) {
   const editVal = req.body.secret;
   const delId = req.body.hisId;
   const secretId = req.body.del;
-  console.log(editVal);
+  //console.log(editVal);
   const a = await User.findOneAndUpdate(
     { _id: delId, "secrets._id": secretId },
     {
       $set: { "secrets.$.secret": editVal },
     }
   );
-  console.log(a);
+  //console.log(a);
   res.redirect("/secrets");
 });
 
@@ -323,7 +323,7 @@ app.post("/edit", async function (req, res) {
 app.post("/changePassword", function (req, res) {
   //console.log("change password" + req.body);
   // console.log("change password user" + req.user);
-  console.log(req.user);
+  //console.log(req.user);
   req.user.changePassword(req.body.current, req.body.new, function (err) {
     if (err) {
       console.log(err);
@@ -368,7 +368,7 @@ app.post("/forget", async function (req, res) {
   );
 });
 app.post("/setPassword", async function (req, res) {
-  console.log(req.body);
+  //console.log(req.body);
   User.findOne({ username: req.body.username }).then(
     function (sanitizedUser) {
       if (sanitizedUser) {
@@ -401,7 +401,7 @@ app.post("/delete", function (req, res) {
 
 //delete account
 app.post("/deleteAccount", async function (req, res) {
-  console.log("delete user info " + req.user);
+  //console.log("delete user info " + req.user);
   try {
     await User.findByIdAndDelete(req.user._id);
     res.redirect("/register");
