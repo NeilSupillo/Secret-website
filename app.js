@@ -297,6 +297,7 @@ app.post("/login", function (req, res, next) {
       if (err) {
         return next(err);
       }
+      console.log(user);
       return res.redirect("/secrets");
     });
   })(req, res, next);
@@ -347,15 +348,35 @@ app.post("/forget", async function (req, res) {
   // } else {
   //   res.render("forget", { user: "not found" });
   // }
+
   User.findOne({ username: req.body.username }).then(
     function (sanitizedUser) {
       if (sanitizedUser) {
         sanitizedUser.setPassword(req.body.password, function () {
           sanitizedUser.save();
-          res.status(200).json({ message: "password reset successful" });
+          res.render("login", { user: "forget success" });
         });
       } else {
-        res.status(500).json({ message: "This user does not exist" });
+        res.render("forget", { user: "not found" });
+        //es.status(500).json({ message: "This user does not exist" });
+      }
+    },
+    function (err) {
+      console.error(err);
+    }
+  );
+});
+app.post("/setPassword", async function (req, res) {
+  console.log(req.body);
+  User.findOne({ username: req.body.username }).then(
+    function (sanitizedUser) {
+      if (sanitizedUser) {
+        sanitizedUser.setPassword(req.body.password, function () {
+          sanitizedUser.save();
+          res.render("login", { user: "set success" });
+        });
+      } else {
+        res.status(500).json({ message: "Something goes wrong" });
       }
     },
     function (err) {

@@ -48,7 +48,7 @@
     </div>
 
     <!--2-->
-    <%if(!user.googleId){%>
+    <%if(!user.salt){%>
     <div class="col-sm-5">
       <div class="card">
         <div class="card-body">
@@ -68,9 +68,33 @@
         </div>
       </div>
     </div>
+    <% } else {%>
+    <div class="col-sm-5">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="title-account">Set Password</h4>
+          <!-- Makes POST request to /login route -->
+          <form action="/setPassword" method="POST">
+            <div class="form-group">
+              <label for="text">Set Password</label>
+              <input type="text" class="form-control" name="username" />
+              <input
+                type="text"
+                class="form-control"
+                name="email"
+                value="<%=user.username%>"
+                hidden
+              />
+            </div>
+            <button type="submit" class="btn btn-dark">Set</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <% }%>
   </div>
 </div>
-<% }%>
+
 <!-- your secrets-->
 <div class="container">
   <%if(!user.secrets.length){%>
