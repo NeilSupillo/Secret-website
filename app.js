@@ -14,6 +14,7 @@ var LocalStrategy = require("passport-local").Strategy;
 const app = express();
 
 app.use(express.static("public"));
+app.set("views", __dirname + "/views");
 app.set("view engine", "ejs");
 app.use(
   bodyParser.urlencoded({
