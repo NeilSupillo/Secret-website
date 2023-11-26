@@ -114,7 +114,7 @@ passport.use(
     {
       clientID: process.env.CLIENT_ID,
       clientSecret: process.env.CLIENT_SECRET,
-      callbackURL: "http://localhost:3000/auth/google/secrets",
+      callbackURL: "https://secret-website-nine.vercel.app/auth/google/secrets",
       userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
     },
     async function (accessToken, refreshToken, profile, cb) {
@@ -331,7 +331,8 @@ app.post("/changePassword", function (req, res) {
   //console.log(req.user);
   req.user.changePassword(req.body.current, req.body.new, function (err) {
     if (err) {
-      res.redirect("/submit");
+      //res.redirect("/submit");
+      res.render("submit", { user: req.user });
       re;
     } else {
       res.render("login", { user: "change pass" });
