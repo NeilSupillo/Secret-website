@@ -82,12 +82,17 @@ passport.use(
     {
       clientID: process.env.FACEBOOK_ID,
       clientSecret: process.env.FACEBOOK_SECRET,
-      callbackURL: "http://localhost:3000/auth/facebook/secrets",
+      callbackURL:
+        "https://secret-website-nine.vercel.app/auth/auth/facebook/secrets",
     },
     function (accessToken, refreshToken, profile, cb) {
       User.findOrCreate(
         { username: profile.displayName, facebookId: profile.id },
         function (err, user) {
+          if (err) {
+            return cb(null, false);
+          }
+
           return cb(err, user);
         }
       );
@@ -114,7 +119,8 @@ passport.use(
     {
       clientID: process.env.CLIENT_ID,
       clientSecret: process.env.CLIENT_SECRET,
-      callbackURL: "https://secret-website-nine.vercel.app/auth/google/secrets",
+      callbackURL:
+        "https://secret-website-nine.vercel.app/auth/google/secrets/",
       userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
     },
     async function (accessToken, refreshToken, profile, cb) {
@@ -205,7 +211,7 @@ app.get("/submit", async function (req, res) {
   if (req.user) {
     const userId = await User.findById(req.user.id);
     // console.log("/submit " + userId);
-    res.render("submit", { user: userId });
+    res.render("submit", { user: userId, wrong: "" });
   } else {
     res.redirect("/login");
   }
@@ -332,8 +338,7 @@ app.post("/changePassword", function (req, res) {
   req.user.changePassword(req.body.current, req.body.new, function (err) {
     if (err) {
       //res.redirect("/submit");
-      res.render("submit", { user: req.user });
-      re;
+      res.render("submit", { user: req.user, wrong: "wrong pass" });
     } else {
       res.render("login", { user: "change pass" });
     }
@@ -374,6 +379,7 @@ app.post("/forget", async function (req, res) {
     }
   );
 });
+
 app.post("/setPassword", async function (req, res) {
   //console.log(req.body);
   User.findOne({ username: req.body.username }).then(

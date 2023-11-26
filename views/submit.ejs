@@ -59,6 +59,9 @@
               <label for="text">Current Password</label>
               <input type="text" class="form-control" name="current" />
             </div>
+            <%if(wrong === "wrong pass"){%>
+            <p class="wrong">Wrong password</p>
+            <% }%>
             <div class="form-group">
               <label for="password">New Password</label>
               <input type="password" class="form-control" name="new" />
