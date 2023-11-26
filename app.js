@@ -114,7 +114,7 @@ passport.use(
     {
       clientID: process.env.CLIENT_ID,
       clientSecret: process.env.CLIENT_SECRET,
-      callbackURL: "http://localhost:3000/auth/google/secrets",
+      callbackURL: "https://secret-website-nine.vercel.app/auth/google/secrets",
       userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
     },
     async function (accessToken, refreshToken, profile, cb) {
@@ -136,12 +136,12 @@ passport.use(
 
 /* google get request */
 app.get(
-  "/auth/google",
+  "https://secret-website-nine.vercel.app/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
 app.get(
-  "/auth/google/secrets",
+  "https://secret-website-nine.vercel.app/auth/google/secrets",
   passport.authenticate("google", { failureRedirect: "/duplicate" }),
   function (req, res) {
     // Successful authentication, redirect to secrets.
