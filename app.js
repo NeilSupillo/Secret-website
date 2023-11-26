@@ -21,11 +21,14 @@ app.use(
     extended: true,
   })
 );
+
+app.enable("trust proxy");
 app.use(
   session({
     secret: "Our little secret.",
     resave: false,
     saveUninitialized: false,
+    proxy: true,
   })
 );
 app.use(passport.initialize());
@@ -168,7 +171,8 @@ app.get("/forget", function (req, res) {
 });
 // get and see user secrets
 app.get("/secrets", async function (req, res) {
-  console.log(req.isAuthenticated());
+  console.log("secrets user " + req.user);
+  console.log("secrets authen " + req.isAuthenticated());
   if (req.isAuthenticated()) {
     const foundUsers = await User.find({
       secrets: { $exists: true, $not: { $size: 0 } },
@@ -196,7 +200,8 @@ app.get("/secrets", async function (req, res) {
 
 //see account
 app.get("/submit", async function (req, res) {
-  console.log(req.isAuthenticated());
+  console.log("submit user " + req.user);
+  console.log("submit authen" + req.isAuthenticated());
   if (req.isAuthenticated()) {
     const userId = await User.findById(req.user.id);
     // console.log("/submit " + userId);
@@ -326,9 +331,10 @@ app.post("/changePassword", function (req, res) {
   //console.log(req.user);
   req.user.changePassword(req.body.current, req.body.new, function (err) {
     if (err) {
-      console.log(err);
+      res.redirect("/submit");
+      re;
     } else {
-      res.redirect("/login");
+      res.render("login", { user: "change pass" });
     }
   });
 });
