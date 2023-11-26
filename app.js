@@ -136,12 +136,12 @@ passport.use(
 
 /* google get request */
 app.get(
-  "https://secret-website-nine.vercel.app/auth/google",
+  "/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
 app.get(
-  "https://secret-website-nine.vercel.app/auth/google/secrets",
+  "/auth/google/secrets",
   passport.authenticate("google", { failureRedirect: "/duplicate" }),
   function (req, res) {
     // Successful authentication, redirect to secrets.
