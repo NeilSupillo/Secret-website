@@ -177,8 +177,8 @@ app.get("/forget", function (req, res) {
 // get and see user secrets
 app.get("/secrets", async function (req, res) {
   console.log("secrets user " + req.user);
-  console.log("secrets authen " + req.isAuthenticated());
-  if (req.isAuthenticated()) {
+
+  if (req.session.isAuthenticated) {
     const foundUsers = await User.find({
       secrets: { $exists: true, $not: { $size: 0 } },
     });
@@ -209,8 +209,8 @@ app.get("/secrets", async function (req, res) {
 //see account
 app.get("/submit", async function (req, res) {
   console.log("submit user " + req.user);
-  console.log("submit authen" + req.isAuthenticated());
-  if (req.isAuthenticated()) {
+  //console.log(req);
+  if (req.session.isAuthenticated) {
     const userId = await User.findById(req.user.id);
     // console.log("/submit " + userId);
     req.session.isAuthenticated = true;
