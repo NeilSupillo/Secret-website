@@ -22,13 +22,14 @@ app.use(
   })
 );
 
-app.enable("trust proxy");
+app.set("trust proxy", 1);
 app.use(
   session({
     secret: "Our little secret.",
     resave: true,
     saveUninitialized: true,
     proxy: true,
+    cookie: { secure: true },
   })
 );
 app.use(passport.initialize());
