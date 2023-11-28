@@ -178,7 +178,7 @@ app.get("/forget", function (req, res) {
 app.get("/secrets", async function (req, res) {
   console.log("secrets user " + req.user);
 
-  if (req.session.isAuthenticated) {
+  if (req.isAuthenticated()) {
     const foundUsers = await User.find({
       secrets: { $exists: true, $not: { $size: 0 } },
     });
@@ -207,7 +207,7 @@ app.get("/secrets", async function (req, res) {
 app.get("/submit", async function (req, res) {
   console.log("submit user " + req.user);
   //console.log(req);
-  if (req.session.isAuthenticated) {
+  if (req.isAuthenticated()) {
     const userId = await User.findById(req.user.id);
     // console.log("/submit " + userId);
     req.session.isAuthenticated = true;
@@ -266,26 +266,26 @@ app.post("/register", function (req, res) {
     }
   );
 });
-// log in
-// app.post("/logi", function (req, res) {
-//   const user = new User({
-//     username: req.body.username,
-//     password: req.body.password,
-//   });
+//log in
+app.post("/login", function (req, res) {
+  const user = new User({
+    username: req.body.username,
+    password: req.body.password,
+  });
 
-//   req.login(user, function (err) {
-//     if (err) {
-//       res.redirect("/register");
-//     } else {
-//       passport.authenticate("local")(req, res, function () {
-//         console.log("tanga");
-//         res.redirect("/secrets");
-//       });
-//     }
-//   });
-// });
+  req.login(user, function (err) {
+    if (err) {
+      res.redirect("/register");
+    } else {
+      passport.authenticate("local")(req, res, function () {
+        console.log("tanga");
+        res.redirect("/secrets");
+      });
+    }
+  });
+});
 app.post(
-  "/login",
+  "/loin",
   passport.authenticate("local", {
     successRedirect: "/secrets",
     failureRedirect: "/login",
