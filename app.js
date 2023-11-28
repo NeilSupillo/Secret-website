@@ -267,7 +267,7 @@ app.post("/register", function (req, res) {
   );
 });
 //log in
-app.post("/login", function (req, res) {
+app.post("/loin", function (req, res) {
   const user = new User({
     username: req.body.username,
     password: req.body.password,
@@ -285,7 +285,7 @@ app.post("/login", function (req, res) {
   });
 });
 app.post(
-  "/loin",
+  "/login",
   passport.authenticate("local", {
     successRedirect: "/secrets",
     failureRedirect: "/login",
