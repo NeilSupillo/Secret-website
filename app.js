@@ -139,8 +139,6 @@ passport.use(
   )
 );
 
-let auth = false;
-
 /* google get request */
 app.get(
   "/auth/google",
