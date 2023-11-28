@@ -184,6 +184,9 @@ app.get("/secrets", async function (req, res) {
     });
     //console.log(foundUsers)
     //.then( ()=>{
+    req.session.isAuthenticated = true;
+    res.locals.isAuthenticated = true;
+    res.locals.user = req.user;
     res.render("secrets", { usersWithSecrets: foundUsers });
 
     /* })
@@ -210,6 +213,9 @@ app.get("/submit", async function (req, res) {
   if (req.isAuthenticated()) {
     const userId = await User.findById(req.user.id);
     // console.log("/submit " + userId);
+    req.session.isAuthenticated = true;
+    res.locals.isAuthenticated = true;
+    res.locals.user = req.user;
     res.render("submit", { user: userId, wrong: "" });
   } else {
     res.redirect("/login");
@@ -309,6 +315,9 @@ app.post("/login", function (req, res, next) {
         return next(err);
       }
       //console.log(user);
+      req.session.isAuthenticated = true;
+      res.locals.isAuthenticated = true;
+      res.locals.user = req.user;
       return res.redirect("/secrets");
     });
   })(req, res, next);
