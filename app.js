@@ -10,7 +10,7 @@ const passportLocalMongoose = require("passport-local-mongoose");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
 const findOrCreate = require("mongoose-findorcreate");
-var LocalStrategy = require("passport-local").Strategy;
+//var LocalStrategy = require("passport-local").Strategy;
 const app = express();
 
 app.use(express.static(__dirname + "/public"));
@@ -178,7 +178,7 @@ app.get("/forget", function (req, res) {
 app.get("/secrets", async function (req, res) {
   console.log("secrets user " + req.user);
   console.log("secrets authen " + req.isAuthenticated());
-  if (req.user) {
+  if (req.isAuthenticated()) {
     const foundUsers = await User.find({
       secrets: { $exists: true, $not: { $size: 0 } },
     });
@@ -207,7 +207,7 @@ app.get("/secrets", async function (req, res) {
 app.get("/submit", async function (req, res) {
   console.log("submit user " + req.user);
   console.log("submit authen" + req.isAuthenticated());
-  if (req.user) {
+  if (req.isAuthenticated()) {
     const userId = await User.findById(req.user.id);
     // console.log("/submit " + userId);
     res.render("submit", { user: userId, wrong: "" });
