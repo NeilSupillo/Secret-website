@@ -178,7 +178,7 @@ app.get("/forget", function (req, res) {
 app.get("/secrets", async function (req, res) {
   console.log("secrets user " + req.user);
 
-  if (!req.isAuthenticated()) {
+  if (req.isAuthenticated()) {
     const foundUsers = await User.find({
       secrets: { $exists: true, $not: { $size: 0 } },
     });
@@ -208,7 +208,7 @@ app.get("/secrets", async function (req, res) {
 app.get("/submit", async function (req, res) {
   console.log("submit user " + req.user);
   //console.log(req);
-  if (!req.isAuthenticated()) {
+  if (req.isAuthenticated()) {
     const userId = await User.findById(req.user.id);
     // console.log("/submit " + userId);
     req.session.save();
