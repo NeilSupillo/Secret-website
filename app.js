@@ -139,6 +139,8 @@ passport.use(
   )
 );
 
+let auth = false;
+
 /* google get request */
 app.get(
   "/auth/google",
@@ -178,7 +180,7 @@ app.get("/forget", function (req, res) {
 app.get("/secrets", async function (req, res) {
   console.log("secrets user " + req.user);
 
-  if (req.isAuthenticated()) {
+  if (auth) {
     const foundUsers = await User.find({
       secrets: { $exists: true, $not: { $size: 0 } },
     });
@@ -207,12 +209,9 @@ app.get("/secrets", async function (req, res) {
 app.get("/submit", async function (req, res) {
   console.log("submit user " + req.user);
   //console.log(req);
-  if (req.isAuthenticated()) {
+  if (auth) {
     const userId = await User.findById(req.user.id);
     // console.log("/submit " + userId);
-    req.session.isAuthenticated = true;
-    res.locals.isAuthenticated = true;
-    res.locals.user = req.user;
     res.render("submit", { user: userId, wrong: "" });
   } else {
     res.redirect("/login");
@@ -285,13 +284,13 @@ app.post("/loin", function (req, res) {
   });
 });
 app.post(
-  "/login",
+  "/logi",
   passport.authenticate("local", {
     successRedirect: "/secrets",
     failureRedirect: "/login",
   })
 );
-app.post("/logi", function (req, res, next) {
+app.post("/login", function (req, res, next) {
   passport.authenticate("local", async function (err, user, info) {
     //console.log("all" + err, user, info);
     if (err) {
@@ -312,6 +311,7 @@ app.post("/logi", function (req, res, next) {
         return next(err);
       }
       //console.log(user);
+      auth = true;
       return res.redirect("/secrets");
     });
   })(req, res, next);
