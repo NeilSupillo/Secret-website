@@ -179,22 +179,22 @@ app.get("/forget", function (req, res) {
 app.get("/secrets", async function (req, res) {
   console.log("secrets user " + req.user);
 
-  //if (req.isAuthenticated()) {
-  const foundUsers = await User.find({
-    secrets: { $exists: true, $not: { $size: 0 } },
-  });
-  //console.log(foundUsers)
-  //.then( ()=>{
-  req.session.save();
-  res.render("secrets", { usersWithSecrets: foundUsers });
-
-  /* })
+  if (req.isAuthenticated()) {
+    const foundUsers = await User.find({
+      secrets: { $exists: true, $not: { $size: 0 } },
+    });
+    //console.log(foundUsers)
+    //.then( ()=>{
+    req.session.save(() => {
+      res.render("secrets", { usersWithSecrets: foundUsers });
+    });
+    /* })
    .catch( (err)=>{
        console.log(err) 
    })  */
-  // } else {
-  //   res.redirect("/login");
-  // }
+  } else {
+    res.redirect("/login");
+  }
 });
 
 /* app.get("/secrets", function(req, res){
@@ -209,14 +209,16 @@ app.get("/secrets", async function (req, res) {
 app.get("/submit", async function (req, res) {
   console.log("submit user " + req.user);
   //console.log(req);
-  //if (req.isAuthenticated()) {
-  const userId = await User.findById(req.user.id);
-  // console.log("/submit " + userId);
+  if (req.isAuthenticated()) {
+    const userId = await User.findById(req.user.id);
+    // console.log("/submit " + userId);
 
-  res.render("submit", { user: userId, wrong: "" });
-  // } else {
-  //   res.redirect("/login");
-  // }
+    req.session.save(() => {
+      res.render("submit", { user: userId, wrong: "" });
+    });
+  } else {
+    res.redirect("/login");
+  }
 });
 
 //logout
@@ -312,7 +314,7 @@ app.post("/login", function (req, res, next) {
         return next(err);
       }
       //console.log(user);
-      req.session.save();
+
       return res.redirect("/secrets");
     });
   })(req, res, next);
