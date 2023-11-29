@@ -182,7 +182,7 @@ app.get("/forget", function (req, res) {
 app.get("/secrets", async function (req, res) {
   console.log("secrets user " + req.user);
 
-  if (req.isAuthenticated()) {
+  if (true) {
     const foundUsers = await User.find({
       secrets: { $exists: true, $not: { $size: 0 } },
     });
@@ -212,7 +212,7 @@ app.get("/secrets", async function (req, res) {
 app.get("/submit", async function (req, res) {
   console.log("submit user " + req.user);
   //console.log(req);
-  if (req.isAuthenticated()) {
+  if (true) {
     const userId = await User.findById(req.user.id);
     // console.log("/submit " + userId);
 
@@ -272,7 +272,7 @@ app.post("/register", function (req, res) {
   );
 });
 //log in
-app.post("/login", function (req, res) {
+app.post("/logi", function (req, res) {
   const user = new User({
     username: req.body.username,
     password: req.body.password,
@@ -296,7 +296,7 @@ app.post(
     failureRedirect: "/login",
   })
 );
-app.post("/logi", function (req, res, next) {
+app.post("/login", function (req, res, next) {
   passport.authenticate("local", async function (err, user, info) {
     //console.log("all" + err, user, info);
     if (err) {
