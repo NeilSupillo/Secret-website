@@ -272,7 +272,7 @@ app.post("/register", function (req, res) {
   );
 });
 //log in
-app.post("/loin", function (req, res) {
+app.post("/login", function (req, res) {
   const user = new User({
     username: req.body.username,
     password: req.body.password,
@@ -296,7 +296,7 @@ app.post(
     failureRedirect: "/login",
   })
 );
-app.post("/login", function (req, res, next) {
+app.post("/logi", function (req, res, next) {
   passport.authenticate("local", async function (err, user, info) {
     //console.log("all" + err, user, info);
     if (err) {
