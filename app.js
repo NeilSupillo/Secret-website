@@ -25,6 +25,9 @@ app.use(
 app.set("trust proxy", 1);
 app.use(
   session({
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    },
     secret: "Our little secret.",
     resave: true,
     saveUninitialized: true,
