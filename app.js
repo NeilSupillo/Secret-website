@@ -22,9 +22,10 @@ app.use(
   })
 );
 
+app.set("trust proxy", 1);
 app.use(
   session({
-    secret: process.env.SESSION_SECRET,
+    secret: "Our little secret.",
     resave: false,
     saveUninitialized: true,
   })
