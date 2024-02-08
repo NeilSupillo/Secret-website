@@ -22,17 +22,11 @@ app.use(
   })
 );
 
-app.set("trust proxy", 1);
 app.use(
   session({
-    cookie: {
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-    },
-    secret: "Our little secret.",
-    resave: true,
+    secret: process.env.SESSION_SECRET,
+    resave: false,
     saveUninitialized: true,
-    proxy: true,
-    cookie: { secure: false },
   })
 );
 app.use(passport.initialize());
@@ -135,7 +129,7 @@ passport.use(
           if (err) {
             return cb(null, false);
           }
-          
+
           return cb(err, user);
         }
       );
