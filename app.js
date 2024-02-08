@@ -177,7 +177,7 @@ app.get("/forget", function (req, res) {
 app.get("/secrets", async function (req, res) {
   //console.log("secrets user " + req.user);
 
-  if (true) {
+  if (req.isAuthenticated()) {
     const foundUsers = await User.find({
       secrets: { $exists: true, $not: { $size: 0 } },
     });
@@ -285,13 +285,13 @@ app.post("/logi", function (req, res) {
   });
 });
 app.post(
-  "/logi",
+  "/login",
   passport.authenticate("local", {
     successRedirect: "/secrets",
     failureRedirect: "/login",
   })
 );
-app.post("/login", function (req, res, next) {
+app.post("/logi", function (req, res, next) {
   passport.authenticate("local", async function (err, user, info) {
     //console.log("all" + err, user, info);
     if (err) {
