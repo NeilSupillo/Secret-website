@@ -26,13 +26,13 @@ app.use(
 );
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// app.use(express.static("public"));
-// app.set("views", "views");
-// app.set("view engine", "ejs");
-
-app.use(express.static(__dirname + "public"));
-app.set("views", __dirname + "views");
+app.use(express.static("public"));
+app.set("views", "views");
 app.set("view engine", "ejs");
+
+// app.use(express.static(__dirname + "public"));
+// app.set("views", __dirname + "views");
+// app.set("view engine", "ejs");
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -142,14 +142,14 @@ app.get("/account", async function (req, res) {
 });
 // ** post request ** //
 
-// app.post(
-//   "/login",
-//   passport.authenticate("local", {
-//     successRedirect: "/secrets",
-//     failureRedirect: "/login/wrong",
-//   })
-// );
-app.post("/login", function (req, res, next) {
+app.post(
+  "/login",
+  passport.authenticate("local", {
+    successRedirect: "/secrets",
+    failureRedirect: "/login/wrong",
+  })
+);
+app.post("/logi", function (req, res, next) {
   passport.authenticate("local", async function (err, user, info) {
     console.log("all" + err, user, info);
     if (err) {
