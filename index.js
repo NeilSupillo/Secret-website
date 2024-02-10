@@ -11,7 +11,7 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
 const findOrCreate = require("mongoose-findorcreate");
 //var LocalStrategy = require("passport-local").Strategy;
-const app = express();
+//const app = express();
 
 app.use(express.static(__dirname + "/public"));
 app.set("views", __dirname + "/views");
