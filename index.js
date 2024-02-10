@@ -4,7 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require("mongoose");
-const session = require("express-session");
+var session = require("cookie-session");
 const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
@@ -155,7 +155,7 @@ app.get(
 
 /* app gets request */
 app.get("/", function (req, res) {
-  res.render("home");
+  res.render("home.ejs");
 });
 app.get("/duplicate", function (req, res) {
   res.render("duplicate");
@@ -177,7 +177,7 @@ app.get("/forget", function (req, res) {
 app.get("/secrets", async function (req, res) {
   //console.log("secrets user " + req.user);
 
-  if (true) {
+  if (req.isAuthenticated()) {
     const foundUsers = await User.find({
       secrets: { $exists: true, $not: { $size: 0 } },
     });
@@ -207,13 +207,12 @@ app.get("/secrets", async function (req, res) {
 app.get("/submit", async function (req, res) {
   //console.log("submit user " + req.user);
   //console.log(req);
-  if (true) {
-    const userId = await User.findById(req.user.id);
-    // console.log("/submit " + userId);
+  if (req.isAuthenticated()) {
+    // const userId = await User.findById(req.user.id);
+    console.log("/submit get");
+    console.log(req.user);
 
-    req.session.save(() => {
-      res.render("submit", { user: userId, wrong: "" });
-    });
+    res.render("account", { user: req.user, wrong: "" });
   } else {
     res.redirect("/login");
   }
@@ -285,13 +284,13 @@ app.post("/logi", function (req, res) {
   });
 });
 app.post(
-  "/logi",
+  "/login",
   passport.authenticate("local", {
     successRedirect: "/secrets",
     failureRedirect: "/login",
   })
 );
-app.post("/login", function (req, res, next) {
+app.post("/logi", function (req, res, next) {
   passport.authenticate("local", async function (err, user, info) {
     //console.log("all" + err, user, info);
     if (err) {
@@ -341,7 +340,7 @@ app.post("/changePassword", function (req, res) {
   req.user.changePassword(req.body.current, req.body.new, function (err) {
     if (err) {
       //res.redirect("/submit");
-      res.render("submit", { user: req.user, wrong: "wrong pass" });
+      res.render("account", { user: req.user, wrong: "wrong pass" });
     } else {
       res.render("login", { user: "change pass" });
     }

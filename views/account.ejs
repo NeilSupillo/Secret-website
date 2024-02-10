@@ -31,7 +31,7 @@
                 type="text"
                 class="form-control"
                 name="current"
-                value="<%=user.username%>"
+                value="<%=user.email%>"
                 disabled
               />
             </div>
@@ -56,7 +56,7 @@
     </div>
 
     <!--2-->
-    <%if(!user.salt){%>
+    <%if(user.password != "google"){%>
     <div class="col-sm-5">
       <div class="card">
         <div class="card-body">
@@ -93,7 +93,7 @@
                 type="text"
                 class="form-control"
                 name="email"
-                value="<%=user.username%>"
+                value="<%=user.email%>"
                 hidden
               />
             </div>
@@ -108,7 +108,7 @@
 
 <!-- your secrets-->
 <div class="container">
-  <%if(!user.secrets.length){%>
+  <%if(user.secrets.length === 0){%>
   <p class="user-secret">Don't keep your secrets, share them anonymously!</p>
   <div class="logout-back">
     <a class="btn btn-dark btn-m logout" href="/secrets" role="button"
