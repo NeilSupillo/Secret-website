@@ -118,7 +118,7 @@ passport.use(
     {
       clientID: process.env.CLIENT_ID,
       clientSecret: process.env.CLIENT_SECRET,
-      callbackURL: "http://localhost:3000/secrets/auth/google/secrets",
+      callbackURL: "http://localhost:3000/auth/google/secrets",
       userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
     },
     async function (accessToken, refreshToken, profile, cb) {
@@ -141,13 +141,21 @@ app.get(
   "/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
+// app.get(
+//   "/auth/google/secrets",
+//   passport.authenticate("google", { failureRedirect: "/duplicate" }),
+//   function (req, res) {
+//     // Successful authentication, redirect to secrets.
+//     res.redirect("/secrets");
+//   }
+// );
+
 app.get(
   "/auth/google/secrets",
-  passport.authenticate("google", { failureRedirect: "/duplicate" }),
-  function (req, res) {
-    // Successful authentication, redirect to secrets.
-    res.redirect("/secrets");
-  }
+  passport.authenticate("google", {
+    successRedirect: "/secrets",
+    failureRedirect: "/login",
+  })
 );
 /* app gets request */
 app.get("/", function (req, res) {
@@ -319,8 +327,8 @@ app.post("/forget", async function (req, res) {
   );
 });
 app.post("/setPassword", async function (req, res) {
-  //console.log(req.body);
-  User.findOne({ username: req.body.username }).then(
+  console.log(req.body);
+  User.findOne({ username: req.body.email }).then(
     function (sanitizedUser) {
       if (sanitizedUser) {
         sanitizedUser.setPassword(req.body.password, function () {
