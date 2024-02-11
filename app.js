@@ -9,6 +9,7 @@ import GoogleStrategy from "passport-google-oauth2";
 import session from "express-session";
 import env from "dotenv";
 import { URL } from "url";
+import passportLocalMongoose from "passport-local-mongoose";
 
 const __dirname = new URL(".", import.meta.url).pathname;
 
@@ -26,13 +27,13 @@ app.use(
 );
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// app.use(express.static("public"));
-// app.set("views", "views");
-// app.set("view engine", "ejs");
-
-app.use(express.static(__dirname + "public"));
-app.set("views", __dirname + "views");
+app.use(express.static("public"));
+app.set("views", "views");
 app.set("view engine", "ejs");
+
+// app.use(express.static(__dirname + "public"));
+// app.set("views", __dirname + "views");
+// app.set("view engine", "ejs");
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -63,7 +64,7 @@ const userSchema = new mongoose.Schema({
     },
   ],
 });
-
+userSchema.plugin(passportLocalMongoose);
 const User = new mongoose.model("User", userSchema);
 
 /* app gets request */
@@ -142,14 +143,7 @@ app.get("/account", async function (req, res) {
 });
 // ** post request ** //
 
-app.post(
-  "/login",
-  passport.authenticate("local", {
-    successRedirect: "/secrets",
-    failureRedirect: "/login/wrong",
-  })
-);
-app.post("/logi", function (req, res, next) {
+app.post("/login", function (req, res, next) {
   passport.authenticate("local", async function (err, user, info) {
     console.log("all" + err, user, info);
     if (err) {
@@ -256,43 +250,43 @@ app.post("/changePassword", function (req, res) {
 });
 // forget password
 app.post("/forget", async function (req, res) {
-  //console.log("change password" + req.body);
-  // console.log("change password user" + req.user);
-  // const email = await User.findOne({ username: req.body.username });
-  // if (email) {
-  //   email.setPassword(req.body.password, function (err, user) {
-  //     if (err) {
-  //       console.log(err);
-  //     } else {
-  //       console.log(user);
-  //       // res.redirect("/login");
-  //     }
-  //   });
-  // } else {
-  //   res.render("forget", { user: "not found" });
-  // }
-
-  User.findOne({ username: req.body.username }).then(
-    function (sanitizedUser) {
-      if (sanitizedUser) {
-        sanitizedUser.setPassword(req.body.password, function () {
-          sanitizedUser.save();
-          res.render("login", { user: "forget success" });
-        });
+  console.log("change password" + req.body);
+  console.log("change password user" + req.user);
+  const email = await User.findOne({ email: req.body.username });
+  if (email) {
+    email.setPassword(req.body.password, function (err, user) {
+      if (err) {
+        console.log(err);
       } else {
-        res.render("forget", { user: "not found" });
-        //es.status(500).json({ message: "This user does not exist" });
+        console.log(user);
+        // res.redirect("/login");
       }
-    },
-    function (err) {
-      console.error(err);
-    }
-  );
+    });
+  } else {
+    res.render("forget", { user: "not found" });
+  }
+
+  // User.findOne({ email: req.body.username }).then(
+  //   function (sanitizedUser) {
+  //     if (sanitizedUser) {
+  //       sanitizedUser.setPassword(req.body.password, function () {
+  //         sanitizedUser.save();
+  //         res.render("login", { user: "forget success" });
+  //       });
+  //     } else {
+  //       res.render("forget", { user: "not found" });
+  //       //es.status(500).json({ message: "This user does not exist" });
+  //     }
+  //   },
+  //   function (err) {
+  //     console.error(err);
+  //   }
+  // );
 });
 
 app.post("/setPassword", async function (req, res) {
   //console.log(req.body);
-  User.findOne({ username: req.body.username }).then(
+  User.findOne({ username: req.body.email }).then(
     function (sanitizedUser) {
       if (sanitizedUser) {
         sanitizedUser.setPassword(req.body.password, function () {

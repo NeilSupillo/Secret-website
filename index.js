@@ -4,15 +4,14 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require("mongoose");
-var session = require("cookie-session");
+const session = require("express-session");
 const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
 const findOrCreate = require("mongoose-findorcreate");
 //var LocalStrategy = require("passport-local").Strategy;
-//const app = express();
-
+const app = express();
 app.use(express.static(__dirname + "/public"));
 app.set("views", __dirname + "/views");
 app.set("view engine", "ejs");
@@ -21,18 +20,28 @@ app.use(
     extended: true,
   })
 );
-
-app.set("trust proxy", 1);
+// app.set("trust proxy", 1);
+// app.use(
+//   session({
+//     cookie: {
+//       maxAge: 1000 * 60 * 60 * 24 * 7,
+//     },
+//     secret: "Our little secret.",
+//     resave: true,
+//     saveUninitialized: true,
+//     proxy: true,
+//     cookie: { secure: true },
+//   })
+// );
 app.use(
   session({
-    secret: "Our little secret.",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
   })
 );
 app.use(passport.initialize());
 app.use(passport.session());
-
 const url = process.env.MONGO_URL;
 mongoose
   .connect(url, { useNewUrlParser: true })
@@ -42,7 +51,6 @@ mongoose
   .catch((err) => {
     console.log(`error connected to db ${err}`);
   });
-
 const userSchema = new mongoose.Schema({
   email: String,
   password: String,
@@ -54,18 +62,13 @@ const userSchema = new mongoose.Schema({
     },
   ],
 });
-
 userSchema.plugin(passportLocalMongoose);
 userSchema.plugin(findOrCreate);
-
 const User = new mongoose.model("User", userSchema);
-
 passport.use(User.createStrategy());
-
 passport.serializeUser(function (user, done) {
   done(null, user.id);
 });
-
 passport.deserializeUser(function (id, done) {
   User.findById(id)
     .then((user) => {
@@ -91,7 +94,6 @@ passport.use(
           if (err) {
             return cb(null, false);
           }
-
           return cb(err, user);
         }
       );
@@ -103,7 +105,6 @@ app.get(
   "/auth/facebook",
   passport.authenticate("facebook", { scope: "public_profile" })
 );
-
 app.get(
   "/auth/facebook/secrets",
   passport.authenticate("facebook", { failureRedirect: "/login" }),
@@ -112,13 +113,12 @@ app.get(
     res.redirect("/secrets");
   }
 );
-
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.CLIENT_ID,
       clientSecret: process.env.CLIENT_SECRET,
-      callbackURL: "http://localhost:3000/auth/google/secrets",
+      callbackURL: "http://localhost:3000/secrets/auth/google/secrets",
       userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
     },
     async function (accessToken, refreshToken, profile, cb) {
@@ -130,20 +130,17 @@ passport.use(
           if (err) {
             return cb(null, false);
           }
-
           return cb(err, user);
         }
       );
     }
   )
 );
-
 /* google get request */
 app.get(
   "/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
-
 app.get(
   "/auth/google/secrets",
   passport.authenticate("google", { failureRedirect: "/duplicate" }),
@@ -152,10 +149,9 @@ app.get(
     res.redirect("/secrets");
   }
 );
-
 /* app gets request */
 app.get("/", function (req, res) {
-  res.render("home.ejs");
+  res.render("home");
 });
 app.get("/duplicate", function (req, res) {
   res.render("duplicate");
@@ -166,7 +162,6 @@ app.get("/login", function (req, res) {
   //console.log("statusCode: ", res.statusCode);
   res.render("login", { user: "" });
 });
-
 app.get("/register", function (req, res) {
   res.render("register", { user: "" });
 });
@@ -175,8 +170,7 @@ app.get("/forget", function (req, res) {
 });
 // get and see user secrets
 app.get("/secrets", async function (req, res) {
-  //console.log("secrets user " + req.user);
-
+  console.log("secrets user " + req.user);
   if (req.isAuthenticated()) {
     const foundUsers = await User.find({
       secrets: { $exists: true, $not: { $size: 0 } },
@@ -194,7 +188,6 @@ app.get("/secrets", async function (req, res) {
     res.redirect("/login");
   }
 });
-
 /* app.get("/secrets", function(req, res){
   if (req.isAuthenticated()){
     res.render("secrets");
@@ -202,22 +195,20 @@ app.get("/secrets", async function (req, res) {
     res.redirect("/login");
   }
 });  */
-
 //see account
-app.get("/submit", async function (req, res) {
-  //console.log("submit user " + req.user);
+app.get("/account", async function (req, res) {
+  console.log("submit user " + req.user);
   //console.log(req);
   if (req.isAuthenticated()) {
-    // const userId = await User.findById(req.user.id);
-    console.log("/submit get");
-    console.log(req.user);
-
-    res.render("account", { user: req.user, wrong: "" });
+    const userId = await User.findById(req.user.id);
+    // console.log("/submit " + userId);
+    req.session.save(() => {
+      res.render("account", { user: userId, wrong: "" });
+    });
   } else {
     res.redirect("/login");
   }
 });
-
 //logout
 app.get("/logout", function (req, res) {
   req.logout(function (err) {
@@ -227,7 +218,6 @@ app.get("/logout", function (req, res) {
   });
   res.redirect("/");
 });
-
 /* app post request */
 //submit a secret /secrets
 app.post("/submit", async function (req, res) {
@@ -237,7 +227,6 @@ app.post("/submit", async function (req, res) {
   };
   //Once the user is authenticated and their session gets saved, their user details are saved to req.user.
   // console.log(req.user.id);
-
   const foundUser = await User.findById(req.user.id);
   if (foundUser) {
     foundUser.secrets.push(cus);
@@ -247,7 +236,6 @@ app.post("/submit", async function (req, res) {
     console.log(err);
   }
 });
-
 //register
 app.post("/register", function (req, res) {
   User.register(
@@ -266,56 +254,7 @@ app.post("/register", function (req, res) {
   );
 });
 //log in
-app.post("/logi", function (req, res) {
-  const user = new User({
-    username: req.body.username,
-    password: req.body.password,
-  });
 
-  req.login(user, function (err) {
-    if (err) {
-      res.redirect("/register");
-    } else {
-      passport.authenticate("local")(req, res, function () {
-        console.log("tanga");
-        res.redirect("/secrets");
-      });
-    }
-  });
-});
-app.post(
-  "/login",
-  passport.authenticate("local", {
-    successRedirect: "/secrets",
-    failureRedirect: "/login",
-  })
-);
-app.post("/logi", function (req, res, next) {
-  passport.authenticate("local", async function (err, user, info) {
-    //console.log("all" + err, user, info);
-    if (err) {
-      //console.log("err" + err);
-      return next(err);
-    }
-    if (!user) {
-      //console.log("user " + err);
-      const email = await User.findOne({ username: req.body.username }).lean();
-      if (!email) {
-        return res.render("login", { user: "email" });
-      } else {
-        return res.render("login", { user: "wrong" });
-      }
-    }
-    req.logIn(user, function (err) {
-      if (err) {
-        return next(err);
-      }
-      //console.log(user);
-
-      return res.redirect("/secrets");
-    });
-  })(req, res, next);
-});
 //edit a secret
 app.post("/edit", async function (req, res) {
   const editVal = req.body.secret;
@@ -331,7 +270,6 @@ app.post("/edit", async function (req, res) {
   //console.log(a);
   res.redirect("/secrets");
 });
-
 // change password
 app.post("/changePassword", function (req, res) {
   //console.log("change password" + req.body);
@@ -363,7 +301,6 @@ app.post("/forget", async function (req, res) {
   // } else {
   //   res.render("forget", { user: "not found" });
   // }
-
   User.findOne({ username: req.body.username }).then(
     function (sanitizedUser) {
       if (sanitizedUser) {
@@ -381,7 +318,6 @@ app.post("/forget", async function (req, res) {
     }
   );
 });
-
 app.post("/setPassword", async function (req, res) {
   //console.log(req.body);
   User.findOne({ username: req.body.username }).then(
@@ -407,13 +343,12 @@ app.post("/delete", function (req, res) {
   //console.log("deleted secret "+delId, secretId);
   User.updateOne({ _id: delId }, { $pull: { secrets: { _id: secretId } } })
     .then(() => {
-      res.redirect("/submit");
+      res.redirect("/account");
     })
     .catch((err) => {
       console.log(`error connected to db ${err}`);
     });
 });
-
 //delete account
 app.post("/deleteAccount", async function (req, res) {
   //console.log("delete user info " + req.user);
@@ -424,7 +359,56 @@ app.post("/deleteAccount", async function (req, res) {
     console.log(error.message);
   }
 });
-
 app.listen(3000, function () {
   console.log("Server started on port 3000.");
+});
+app.post("/loin", function (req, res) {
+  const user = new User({
+    username: req.body.username,
+    password: req.body.password,
+  });
+
+  req.login(user, function (err) {
+    if (err) {
+      res.redirect("/register");
+    } else {
+      passport.authenticate("local")(req, res, function () {
+        console.log("tanga");
+        res.redirect("/secrets");
+      });
+    }
+  });
+});
+
+app.post(
+  "/logi",
+  passport.authenticate("local", {
+    successRedirect: "/secrets",
+    failureRedirect: "/login",
+  })
+);
+app.post("/login", function (req, res, next) {
+  passport.authenticate("local", async function (err, user, info) {
+    //console.log("all" + err, user, info);
+    if (err) {
+      //console.log("err" + err);
+      return next(err);
+    }
+    if (!user) {
+      //console.log("user " + err);
+      const email = await User.findOne({ username: req.body.username }).lean();
+      if (!email) {
+        return res.render("login", { user: "email" });
+      } else {
+        return res.render("login", { user: "wrong" });
+      }
+    }
+    req.logIn(user, function (err) {
+      if (err) {
+        return next(err);
+      }
+      //console.log(user);
+      return res.redirect("/secrets");
+    });
+  })(req, res, next);
 });

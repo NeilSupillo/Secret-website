@@ -31,7 +31,7 @@
                 type="text"
                 class="form-control"
                 name="current"
-                value="<%=user.email%>"
+                value="<%=user.username%>"
                 disabled
               />
             </div>
@@ -44,10 +44,7 @@
             >
           </div>
           <div class="logout-back">
-            <a
-              class="btn btn-light btn-lg logout"
-              href="javascript:window.history.back();"
-              role="button"
+            <a class="btn btn-light btn-lg logout" href="/secrets" role="button"
               >Secrets</a
             >
           </div>
@@ -56,7 +53,7 @@
     </div>
 
     <!--2-->
-    <%if(user.password != "google"){%>
+    <%if(!user.googleId){%>
     <div class="col-sm-5">
       <div class="card">
         <div class="card-body">
@@ -88,12 +85,17 @@
           <form action="/setPassword" method="POST">
             <div class="form-group">
               <label for="text">Set Password</label>
-              <input type="text" class="form-control" name="username" />
+              <input
+                type="text"
+                class="form-control"
+                name="password"
+                required
+              />
               <input
                 type="text"
                 class="form-control"
                 name="email"
-                value="<%=user.email%>"
+                value="<%=user.username%>"
                 hidden
               />
             </div>
